@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  main:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Configuration
+        run: |
+          echo "::set-env name=TAG::elnebuloso/php-codesniffer"
+      - name: Version
+        run: |
+          version=$(mktemp)
+          docker build --tag ${TAG} --pull --rm --no-cache --file Dockerfile .
+          docker run ${TAG} phpcs --version > ${version}
+          cat ${version}
+          export MAJOR=$(cat ${version} | grep -Po '(\d+\.)+\d+' | cut -d. -f1)
+          export MINOR=$(cat ${version} | grep -Po '(\d+\.)+\d+' | cut -d. -f2)
+          export PATCH=$(cat ${version} | grep -Po '(\d+\.)+\d+' | cut -d. -f3)
+          echo "::set-env name=MAJOR::$MAJOR"
+          echo "::set-env name=MINOR::$MINOR"
+          echo "::set-env name=PATCH::$PATCH"
+      - name: Release
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker tag ${TAG} ${TAG}:${MAJOR}.${MINOR}.${PATCH}
+          docker tag ${TAG} ${TAG}:${MAJOR}.${MINOR}
+          docker tag ${TAG} ${TAG}:${MAJOR}
+          docker push ${TAG}:${MAJOR}.${MINOR}.${PATCH}
+          docker push ${TAG}:${MAJOR}.${MINOR}
+          docker push ${TAG}:${MAJOR}
+          docker push ${TAG}
