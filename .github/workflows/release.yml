@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "README.md"
+  schedule:
+    - cron: "0 0 * * 0"
 
 jobs:
   main:

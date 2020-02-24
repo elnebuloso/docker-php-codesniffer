@@ -16,6 +16,7 @@ Dockerized Squizlabs PHP Codesniffer
 
 - https://hub.docker.com/r/elnebuloso/php-codesniffer
 - https://hub.docker.com/r/elnebuloso/php-codesniffer/tags
+- weekly builds, 0 0 * * 0
 
 ## run
 
